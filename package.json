@@ -1,0 +1,36 @@
+{
+  "name": "loggerproxy",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/loggerProxy.umd.cjs",
+  "module": "./dist/loggerProxy.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/loggerProxy.js",
+      "require": "./dist/loggerProxy.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@types/esprima": "^4.0.3",
+    "@types/estraverse": "^5.1.2",
+    "@types/estree": "^1.0.0",
+    "@types/node": "^18.14.2",
+    "esprima": "^4.0.1",
+    "estraverse": "^5.3.0",
+    "vite-plugin-dts": "^2.0.2"
+  }
+}
