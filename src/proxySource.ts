@@ -22,6 +22,10 @@ interface ProxyEntry {
     statement: string
 }
 
+export interface ProxySourceOptions {
+    cb? : Function | null
+}
+
 type SourceType = "script" | "module"
 
 const entries: ProxyEntry[] = []
@@ -35,7 +39,7 @@ function buildArg(argList: Array<any>) {
     return ""
 }
 
-export function proxySource(source: string, type: SourceType) {
+export function proxySource(source: string, type: SourceType, options?: ProxySourceOptions) {
     let ast
     if (type === 'script') {
         ast = esprima.parseScript(source, { range: true });
@@ -46,6 +50,9 @@ export function proxySource(source: string, type: SourceType) {
     }
     estraverse.traverse(ast, {
         enter: function (node, parent) {
+            if (options && options.cb && (typeof options.cb === 'function')) {
+                options.cb(node, parent)
+            }
             if (node.type === 'NewExpression') {
                 const ba = buildArg(node.arguments)
                 let name = ''
