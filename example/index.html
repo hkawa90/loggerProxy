@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JS AST Graph</title>
+</head>
+
+<body>
+  <pre>Input Javascript code</pre>
+  <div><textarea id="src">console.log(3)</textarea></div><br />
+  <input id="exec" type="button" value="Exec" /><br />
+  <div>
+    <pre id="outcode"></pre>
+  </div>
+  <div>
+    <pre id="ast" class="mermaid"></pre>
+  </div>
+  <script type="module">
+    import { proxySource } from '../dist/loggerProxy.js'
+    document.addEventListener('DOMContentLoaded', async function () {
+      const btn = document.getElementById('exec')
+      btn.addEventListener('click', drawAST)
+    })
+    async function drawAST() {
+        const source = document.getElementById('src').value
+        let astGraph = `
+---
+title: AST
+---
+graph TD
+`
+        const callback = function (node, parent) {
+          if (parent) {
+            let src_contents = parent.type
+            let dst_contents = node.type
+            if (node.type === 'BinaryExpression') {
+              dst_contents = '"' + node.operator + '"'
+            } else if (node.type === 'Literal') {
+              dst_contents = '"' + node.raw + '"'
+            } else if (node.type === 'Identifier') {
+              dst_contents = node.name
+            }
+            if (parent.type === 'BinaryExpression') {
+              src_contents =  '"' + parent.operator + '"'
+            }
+            const src = `${parent.type}_${parent.range[0]}(${src_contents})`
+            const dst = `${node.type}_${node.range[0]}(${dst_contents})`
+            astGraph += src + ' --> ' + dst + '\n'
+          }
+        }
+        const options = { cb: callback }
+        const source2 = proxySource(source, 'script', options)
+        const output = document.getElementById('outcode')
+        output.innerText = source2
+        const ast = document.getElementById('ast')
+        if (ast.getAttribute('data-processed')) {
+          ast.removeAttribute('data-processed')
+        }
+        // innerText はNG,改行として<br>が挿入されてMermaidでエラーとなる
+        ast.innerHTML = astGraph
+        const me = document.querySelectorAll('.mermaid')
+        // console.log(astGraph)
+        await mermaid.init(undefined, me)
+      }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: false });</script>
+  <script></script>
+</body>
+
+</html>
